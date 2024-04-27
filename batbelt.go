@@ -1,6 +1,7 @@
 package batbelt
 
 import (
+	"errors"
 	"io"
 	"net/http"
 	"os"
@@ -46,5 +47,28 @@ func (b *Batbelt) SetError(err error) {
 // WithError sets the error err on the batbelt.
 func (b *Batbelt) WithError(err error) *Batbelt {
 	b.SetError(err)
+	return b
+}
+
+// Error returns any error present on the belt, or nil otherwise.
+func (b *Batbelt) Error() error {
+	if b.mu == nil { // uninitialised belt
+		return nil
+	}
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.err
+}
+
+// RemoveFile checks if a file exists and removes it
+// if a file is found
+func (b *Batbelt) RemoveFile(filepath string) *Batbelt {
+	if _, err := os.Stat(filepath); errors.Is(err, os.ErrNotExist) {
+		return b
+	}
+	if err := os.Remove(filepath); err != nil {
+		b.SetError(err)
+	}
+
 	return b
 }
