@@ -1,10 +1,12 @@
 package batbelt_test
 
 import (
+	"encoding/json"
 	"errors"
 	"os"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/jgsheppa/batbelt"
 )
 
@@ -38,4 +40,62 @@ func ExampleBatbelt_RemoveFile() {
 		// return or log error...
 	}
 
+}
+
+func TestCreateJSONFile(t *testing.T) {
+	t.Parallel()
+
+	filepath := "./testdata/json_file.json"
+
+	list := []struct {
+		Name string `json:"name"`
+	}{{Name: "Todd"}, {Name: "Sally"}, {Name: "Gizem"}}
+
+	belt := batbelt.NewBatbelt()
+	belt.CreateJSONFile(list, filepath)
+
+	if belt.Error() != nil {
+		t.Fatalf("could not remove file: %e", belt.Error())
+	}
+
+	b, err := os.ReadFile("testdata/json_file.json")
+	if err != nil {
+		t.Errorf("could not read json file: %e", err)
+	}
+
+	var readList []struct {
+		Name string `json:"name"`
+	}
+
+	err = json.Unmarshal(b, &readList)
+	if err != nil {
+		t.Errorf("could not unmarshal json file: %e", err)
+	}
+
+	want := "Gizem"
+	got := readList[2].Name
+
+	if !cmp.Equal(got, want) {
+		t.Errorf("got %s, want %s", got, want)
+	}
+
+	belt.RemoveFile(filepath)
+	if belt.Error() != nil {
+		t.Fatalf("could not remove file: %e", belt.Error())
+	}
+}
+
+func ExampleBatbelt_CreateJSONFile() {
+	filepath := "./example_file.json"
+
+	list := []struct {
+		Name string `json:"name"`
+	}{{Name: "Philipp"}, {Name: "Sally"}, {Name: "Gizem"}}
+
+	belt := batbelt.NewBatbelt()
+	belt.CreateJSONFile(list, filepath)
+
+	if belt.Error() != nil {
+		// handle error
+	}
 }

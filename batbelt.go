@@ -1,6 +1,7 @@
 package batbelt
 
 import (
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
@@ -71,4 +72,17 @@ func (b *Batbelt) RemoveFile(filepath string) *Batbelt {
 	}
 
 	return b
+}
+
+func (b *Batbelt) CreateJSONFile(structure any, filename string) *Batbelt {
+	jsonBytes, err := json.Marshal(structure)
+	if err != nil {
+		b.SetError(err)
+	}
+
+	err = os.WriteFile(filename, jsonBytes, 0644)
+	if err != nil {
+		b.SetError(err)
+	}
+	return nil
 }
