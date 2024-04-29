@@ -74,6 +74,9 @@ func (b *Batbelt) RemoveFile(filepath string) *Batbelt {
 	return b
 }
 
+// CreateJSONFile is used to generate a JSON file
+// in the file system given a filepath and data of
+// any format
 func (b *Batbelt) CreateJSONFile(structure any, filename string) *Batbelt {
 	jsonBytes, err := json.Marshal(structure)
 	if err != nil {
