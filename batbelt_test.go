@@ -99,3 +99,38 @@ func ExampleBatbelt_CreateJSONFile() {
 		// handle error
 	}
 }
+
+type Person struct {
+	Name string `json:"name"`
+}
+
+func TestReadJSONFile(t *testing.T) {
+	t.Parallel()
+
+	filepath := "./testdata/json_read_file.json"
+
+	list := []Person{{Name: "Todd"}, {Name: "Sally"}, {Name: "Gizem"}}
+
+	var readList []Person
+
+	belt := batbelt.NewBatbelt()
+	belt.CreateJSONFile(list, filepath)
+
+	people, err := batbelt.ReadJSONFile[[]Person](readList, filepath)
+	if err != nil {
+		t.Fatalf("could not create and read: %e", belt.Error())
+	}
+
+	want := "Gizem"
+	got := people[2].Name
+
+	if !cmp.Equal(got, want) {
+		t.Errorf("got %s, want %s", got, want)
+	}
+
+	belt.RemoveFile(filepath)
+	if belt.Error() != nil {
+		t.Fatalf("could not remove file: %e", belt.Error())
+	}
+
+}

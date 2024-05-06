@@ -16,8 +16,9 @@ type Batbelt struct {
 	httpClient     *http.Client
 
 	// because pipe stages are concurrent, protect 'err'
-	mu  *sync.Mutex
-	err error
+	mu   *sync.Mutex
+	err  error
+	Data any
 }
 
 // ReadAutoCloser wraps an [io.ReadCloser] so that it will be automatically
@@ -37,7 +38,7 @@ func NewBatbelt() *Batbelt {
 
 // SetError sets the error err on the batbelt.
 func (b *Batbelt) SetError(err error) {
-	if b.mu == nil { // uninitialised pipe
+	if b.mu == nil { // uninitialised belt
 		return
 	}
 	b.mu.Lock()
@@ -87,5 +88,21 @@ func (b *Batbelt) CreateJSONFile(structure any, filename string) *Batbelt {
 	if err != nil {
 		b.SetError(err)
 	}
-	return nil
+	return b
+}
+
+// ReadJSONFile is used to read a JSON file, unmarshall
+// its content into a generic type, and return the unmarshalled
+// data or an error
+func ReadJSONFile[T any](structure T, filename string) (T, error) {
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		return structure, err
+	}
+
+	if err := json.Unmarshal(data, &structure); err != nil {
+		return structure, err
+	}
+
+	return structure, nil
 }
