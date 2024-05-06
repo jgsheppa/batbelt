@@ -134,3 +134,21 @@ func TestReadJSONFile(t *testing.T) {
 	}
 
 }
+
+func ExampleBatbelt_ReadJSONFile() {
+	filepath := "./testdata/json_read_file.json"
+
+	list := []Person{{Name: "Todd"}, {Name: "Sally"}, {Name: "Gizem"}}
+
+	var readList []Person
+
+	belt := batbelt.NewBatbelt()
+	belt.CreateJSONFile(list, filepath)
+
+	_, err := batbelt.ReadJSONFile[[]Person](readList, filepath)
+	if err != nil {
+		// handle error
+	}
+
+	// Output: [{Name: "Todd"}, {Name: "Sally"}, {Name: "Gizem"}]
+}
