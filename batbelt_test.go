@@ -135,7 +135,7 @@ func TestReadJSONFile(t *testing.T) {
 
 }
 
-func ExampleBatbelt_ReadJSONFile() {
+func ExampleReadJSONFile() {
 	filepath := "./testdata/json_read_file.json"
 
 	list := []Person{{Name: "Todd"}, {Name: "Sally"}, {Name: "Gizem"}}
