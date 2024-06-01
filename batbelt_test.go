@@ -3,6 +3,7 @@ package batbelt_test
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"testing"
 
@@ -116,7 +117,7 @@ func TestReadJSONFile(t *testing.T) {
 	belt := batbelt.NewBatbelt()
 	belt.CreateJSONFile(list, filepath)
 
-	people, err := batbelt.ReadJSONFile[[]Person](readList, filepath)
+	people, err := batbelt.ReadJSONFile(readList, filepath)
 	if err != nil {
 		t.Fatalf("could not create and read: %e", belt.Error())
 	}
@@ -132,7 +133,35 @@ func TestReadJSONFile(t *testing.T) {
 	if belt.Error() != nil {
 		t.Fatalf("could not remove file: %e", belt.Error())
 	}
+}
 
+func TestReadJSONFile_String(t *testing.T) {
+	t.Parallel()
+
+	filepath := "./testdata/json_read_string_file.json"
+
+	exampleText := "Example"
+
+	var readList string
+
+	belt := batbelt.NewBatbelt()
+	belt.CreateJSONFile(exampleText, filepath)
+
+	got, err := batbelt.ReadJSONFile(readList, filepath)
+	if err != nil {
+		t.Fatalf("could not create and read: %e", belt.Error())
+	}
+
+	want := "Example"
+
+	if !cmp.Equal(got, want) {
+		t.Errorf("got %s, want %s", got, want)
+	}
+
+	belt.RemoveFile(filepath)
+	if belt.Error() != nil {
+		t.Fatalf("could not remove file: %e", belt.Error())
+	}
 }
 
 func ExampleReadJSONFile() {
@@ -145,10 +174,11 @@ func ExampleReadJSONFile() {
 	belt := batbelt.NewBatbelt()
 	belt.CreateJSONFile(list, filepath)
 
-	_, err := batbelt.ReadJSONFile[[]Person](readList, filepath)
+	people, err := batbelt.ReadJSONFile[[]Person](readList, filepath)
 	if err != nil {
 		// handle error
 	}
 
-	// Output: [{Name: "Todd"}, {Name: "Sally"}, {Name: "Gizem"}]
+	fmt.Println(people)
+	// Output: [{Todd} {Sally} {Gizem}]
 }
