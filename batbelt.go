@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"math/rand"
 	"net/http"
 	"os"
+	"strings"
 	"sync"
 )
 
@@ -105,4 +107,17 @@ func ReadJSONFile[T any](structure T, filename string) (T, error) {
 	}
 
 	return structure, nil
+}
+
+// GeneratePassword is used to create a random password based
+// on a given character set and length
+func GeneratePassword(characters string, length int) string {
+	var password strings.Builder
+
+	for i := 0; i < length; i++ {
+		random := rand.Intn(len(characters))
+		password.WriteString(string(characters[random]))
+	}
+
+	return password.String()
 }

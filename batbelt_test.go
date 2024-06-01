@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -174,11 +175,56 @@ func ExampleReadJSONFile() {
 	belt := batbelt.NewBatbelt()
 	belt.CreateJSONFile(list, filepath)
 
-	people, err := batbelt.ReadJSONFile[[]Person](readList, filepath)
+	people, err := batbelt.ReadJSONFile(readList, filepath)
 	if err != nil {
 		// handle error
 	}
 
 	fmt.Println(people)
 	// Output: [{Todd} {Sally} {Gizem}]
+}
+
+func TestGeneratePassword_Length(t *testing.T) {
+	t.Parallel()
+
+	password := batbelt.GeneratePassword("abcdefg", 8)
+
+	want := 8
+	got := len(password)
+
+	if !cmp.Equal(got, want) {
+		t.Errorf("got %d, want %d", got, want)
+	}
+}
+
+func TestGeneratePassword_Characters(t *testing.T) {
+	t.Parallel()
+
+	chars := "abcdefg"
+	password := batbelt.GeneratePassword(chars, 8)
+
+	if !strings.ContainsAny(password, chars) {
+		t.Errorf("password contains unwanted characters: %s", password)
+	}
+}
+
+func TestGeneratePassword_UnwantedCharacters(t *testing.T) {
+	t.Parallel()
+
+	chars := "abcdefg"
+	password := batbelt.GeneratePassword(chars, 8)
+
+	unwantedChars := "jklmnop"
+
+	if strings.ContainsAny(password, unwantedChars) {
+		t.Errorf("password contains unwanted characters: %s", password)
+	}
+}
+
+func ExampleGeneratePassword() {
+	chars := "abcdefg"
+	password := batbelt.GeneratePassword(chars, 8)
+
+	fmt.Println(len(password))
+	// Output: 8
 }
